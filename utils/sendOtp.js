@@ -10,7 +10,7 @@ const sendOtp = async (email, otp) => {
   });
 
   const mailOptions = {
-    from: `"GreenGlide" <${process.env.EMAIL_USER}>`,
+    from: `"IdharUdhar" <${process.env.EMAIL_USER}>`,
     to: email,
     subject: 'Your OTP Code',
     html: `<p>Your OTP code is <b>${otp}</b>. Please use it within the next 10 minutes to verify your account.</p>`,
