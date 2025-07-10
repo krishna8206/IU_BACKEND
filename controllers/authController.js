@@ -116,7 +116,7 @@ const sendOtp = require('../utils/sendOtp');
 const generateToken = require('../utils/generateToken');
 
 // Generate a 6-digit OTP
-const generateOTP = () => Math.floor(100000 + Math.random() * 900000).toString();
+const generateOTP = () => Math.floor(1000 + Math.random() * 9000).toString();
 
 // === Signup: Send OTP ===
 exports.sendOTP = async (req, res) => {
