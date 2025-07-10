@@ -1,3 +1,5 @@
+<<<<<<< HEAD
+=======
 // const express = require('express');
 // const {
 //   getUserProfile,
@@ -19,6 +21,7 @@
 
 // module.exports = router;
 
+>>>>>>> 139f86616ae2512101fbdac92d77035f26df1d89
 const express = require('express');
 const {
   getUserProfile,
@@ -30,16 +33,26 @@ const {
 
 const router = express.Router();
 
+<<<<<<< HEAD
+=======
 // Add this optional test route for debugging
 router.get('/test', (req, res) => {
   res.send('✅ User route is active');
 });
 
+>>>>>>> 139f86616ae2512101fbdac92d77035f26df1d89
 router.get('/profile', getUserProfile);
 router.put('/profile', updateUserProfile);
 router.get('/locations', getSavedLocations);
 router.post('/locations', addSavedLocation);
 router.delete('/locations', deleteSavedLocation);
 
+<<<<<<< HEAD
+module.exports = router;
+=======
 module.exports = router; // ✅ Only this one export
+<<<<<<< HEAD
  
+=======
+>>>>>>> 139f86616ae2512101fbdac92d77035f26df1d89
+>>>>>>> b7a11b5966a608f131edf4d80b088cd95e3ccfbc
