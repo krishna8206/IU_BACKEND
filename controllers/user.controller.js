@@ -17,18 +17,19 @@ exports.getUserProfile = async (req, res) => {
     console.error('Error fetching user profile:', err);
     res.status(500).json({ message: 'Server error' });
   }
-};
+}; 
 
 // Update user profiles
 exports.updateUserProfile = async (req, res) => {
-  const { userId, fullName, phone, address } = req.body;
+  const { userId, fullName, phone, address, makeAndModel,licenseNumber,vehicleNumber, color, registration, insurance } = req.body;
 
   try {
     const user = await User.findByIdAndUpdate(userId, {
-      fullName, phone, address,
+      fullName, phone, address, makeAndModel,licenseNumber,vehicleNumber, color, registration, insurance,
     }, { new: true });
-
+  
     res.status(200).json({ message: 'Profile updated', user });
+    console.log(user)
   } catch (err) {
     res.status(500).json({ message: 'Error updating profile' });
   }

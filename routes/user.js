@@ -42,3 +42,4 @@ router.post('/locations', addSavedLocation);
 router.delete('/locations', deleteSavedLocation);
 
 module.exports = router; // ✅ Only this one export
+ 
