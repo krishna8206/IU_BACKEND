@@ -6,7 +6,12 @@ const connectDB = require('./config/db'); // ✅ This now works
 dotenv.config();
 
 const app = express();
-app.use(cors());
+const allowedOrigins = ['https://iu-frontend-hazel.vercel.app/']; // Add your frontend origin(s) here
+app.use(cors({
+  origin: allowedOrigins,
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true
+}));
 app.use(express.json());
 
 // Connect to MongoDB
