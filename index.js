@@ -8,7 +8,7 @@ dotenv.config();
 const app = express();
 const allowedOrigins = ['https://iu-frontend-hazel.vercel.app/']; // Add your frontend origin(s) here
 app.use(cors({
-  origin: 'https://iu-frontend-hazel.vercel.app', // allow your frontend
+  origin: ['https://iu-frontend-hazel.vercel.app',"http://localhost:3000"], 
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true,
 }));
