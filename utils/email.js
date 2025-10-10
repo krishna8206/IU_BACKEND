@@ -6,8 +6,12 @@ const initializeSendGrid = () => {
   const hasSendGridKey = !!process.env.SENDGRID_API_KEY;
 
   if (hasSendGridKey) {
-    sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-    console.log("✉️  SendGrid API key configured successfully");
+    try {
+      sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+      console.log("✉️  SendGrid API key configured successfully");
+    } catch (err) {
+      console.error("✉️  Failed to configure SendGrid API key:", err?.message);
+    }
   } else {
     console.warn(
       "✉️  SENDGRID_API_KEY env not set. Using Gmail SMTP or dev mock email sender. OTPs will be logged and returned as devOtp."
@@ -51,6 +55,8 @@ const createTransporter = () => {
   const hasSendGridKey = !!process.env.SENDGRID_API_KEY;
 
   if (hasSendGridKey) {
+    // Ensure SendGrid is initialized at first use (in case caller forgot)
+    initializeSendGrid();
     return {
       async sendMail(mailOptions) {
         const { to, subject, html, text } = mailOptions || {};
@@ -59,17 +65,15 @@ const createTransporter = () => {
           to: to,
           from: {
             name: "Idhar Udhar",
-            email: process.env.EMAIL_USER || "noreply@idharudhar.com",
+            email:
+              process.env.EMAIL_FROM ||
+              process.env.EMAIL_USER ||
+              "noreply@idharudhar.com",
           },
           subject: subject,
           text: text || "This is a text version of the email content.",
           html: html || "<p>This is the HTML version of the email content.</p>",
-          headers: {
-            "X-Priority": "1",
-            "X-MSMail-Priority": "High",
-            Importance: "high",
-            "X-Mailer": "Idhar Udhar App",
-          },
+          headers: getAntiSpamHeaders(),
         };
 
         try {
@@ -83,7 +87,44 @@ const createTransporter = () => {
               result[0]?.headers?.["x-message-id"] || "sendgrid-message-id",
           };
         } catch (error) {
-          console.error("❌ SendGrid email error:", error);
+          const code = error?.code || error?.response?.statusCode;
+          console.error("❌ SendGrid email error:", code || "unknown", error?.message || error);
+
+          // Try fallback to Gmail SMTP if configured
+          const hasGmailConfig = !!(process.env.EMAIL_USER && process.env.EMAIL_PASS);
+          if (hasGmailConfig) {
+            console.warn("↩️  Falling back to Gmail SMTP for email delivery");
+
+            const gmailTransporter = createGmailTransporter();
+            const smtpMsg = {
+              from: {
+                name: "Idhar Udhar",
+                address:
+                  process.env.EMAIL_FROM ||
+                  process.env.EMAIL_USER ||
+                  "noreply@idharudhar.com",
+              },
+              to,
+              subject,
+              text: text || "This is a text version of the email content.",
+              html: html || "<p>This is the HTML version of the email content.</p>",
+              headers: {
+                ...getAntiSpamHeaders(),
+                "Reply-To": process.env.EMAIL_USER,
+                "Return-Path": process.env.EMAIL_USER,
+              },
+            };
+
+            try {
+              const result = await gmailTransporter.sendMail(smtpMsg);
+              console.log("✅ Email sent successfully via Gmail SMTP:", result.messageId);
+              return { messageId: result.messageId };
+            } catch (smtpError) {
+              console.error("❌ Gmail SMTP fallback error:", smtpError?.message || smtpError);
+            }
+          }
+
+          // If no fallback or fallback failed, propagate original error
           throw error;
         }
       },
@@ -121,10 +162,7 @@ const createTransporter = () => {
         text: text || "This is a text version of the email content.",
         html: html || "<p>This is the HTML version of the email content.</p>",
         headers: {
-          "X-Priority": "1",
-          "X-MSMail-Priority": "High",
-          Importance: "high",
-          "X-Mailer": "Idhar Udhar App",
+          ...getAntiSpamHeaders(),
           "Reply-To": process.env.EMAIL_USER,
           "Return-Path": process.env.EMAIL_USER,
         },
